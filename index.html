@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlowSpace - Markdown Planning App</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar fade">
+    <div class="logo">Flow<span>Space</span></div>
+    <nav class="nav">
+      <button onclick="switchTab('dashboard')">🏠 Dashboard</button>
+      <button onclick="switchTab('notes')">📝 Notes</button>
+      <button onclick="switchTab('tasks')">✅ Tasks</button>
+      <button onclick="switchTab('calendar')">📅 Calendar</button>
+      <button onclick="switchTab('ai')">🤖 AI Hub</button>
+    </nav>
+    <div>
+      <div class="section-title">TODAY TASKS</div>
+      <div class="task-item"><input type="checkbox"> Design landing page</div>
+      <div class="task-item"><input type="checkbox"> Write markdown notes</div>
+      <div class="task-item"><input type="checkbox"> Plan weekly goals</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <input class="search" placeholder="Search notes..." />
+      <div class="top-actions">
+        <button class="btn" onclick="toggleTheme()">🌙 Theme</button>
+        <button class="btn" onclick="downloadMarkdown()">⬇ Export</button>
+      </div>
+    </div>
+
+    <!-- EDITOR + PREVIEW -->
+    <div class="content">
+      <div class="editor-panel">
+        <textarea id="markdown">
+# Welcome to FlowSpace
+
+A modern markdown planning workspace.
+
+## Features
+- Live markdown preview
+- Auto save
+- Task management
+- Calendar planning
+- AI productivity tools
+
+### Markdown Support
+
+```js
+console.log("Hello FlowSpace");
+```
+
+> Build your second brain.
+
+| Feature  | Status |
+|----------|--------|
+| Notes    | ✅     |
+| Tasks    | ✅     |
+| AI       | ✅     |
+
+- [ ] Create app
+- [ ] Add calendar
+- [ ] Add cloud sync
+        </textarea>
+      </div>
+      <div class="preview-panel">
+        <div class="preview" id="preview"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- AI PANEL -->
+  <aside class="ai-panel">
+    <div class="ai-header">AI Productivity Assistant</div>
+    <div class="ai-chat" id="aiChat">
+      <div class="ai-message">
+        👋 Welcome! Try asking:<br><br>
+        • Summarize notes<br>
+        • Create todos<br>
+        • Brainstorm ideas
+      </div>
+    </div>
+    <div class="ai-input">
+      <input type="text" id="aiInput" placeholder="Ask AI..." />
+      <button class="btn" onclick="sendAI()">Send</button>
+    </div>
+  </aside>
+
+</div><!-- /.app -->
+
+
+<!-- ==================== SECTIONS ==================== -->
+
+<!-- DASHBOARD -->
+<section class="dashboard" id="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h2>Dashboard</h2>
+      <p>Overview of your productivity</p>
+    </div>
+  </div>
+  <div class="dashboard-grid">
+    <div class="dash-card"><h3>📌 Today's Tasks</h3><div id="todayTasks"></div></div>
+    <div class="dash-card"><h3>⏰ Upcoming Deadlines</h3><div id="upcomingDeadlines"></div></div>
+    <div class="dash-card"><h3>📊 Productivity Stats</h3><div id="productivityStats"></div></div>
+    <div class="dash-card"><h3>🚀 Project Progress</h3><div id="projectProgress"></div></div>
+    <div class="dash-card"><h3>🕒 Recent Activity</h3><div id="recentActivity"></div></div>
+    <div class="dash-card"><h3>📅 Calendar Summary</h3><div id="calendarSummary"></div></div>
+  </div>
+</section>
+
+<!-- NOTES -->
+<section id="notes">
+  <div class="notes-system">
+    <div class="notes-top">
+      <h3>Notes</h3>
+      <button class="new-note-btn" onclick="createNote()">+</button>
+    </div>
+    <input type="text" class="note-search" id="noteSearch" placeholder="Search notes..." oninput="searchNotes()" />
+    <div class="folder-section">
+      <div class="folder-title">📁 Folders</div>
+      <div class="folder-item active-folder">Personal</div>
+      <div class="folder-item">Work</div>
+      <div class="folder-item">Projects</div>
+    </div>
+    <div class="tags-section">
+      <div class="folder-title">🏷 Tags</div>
+      <div class="tags-list">
+        <span>#productivity</span>
+        <span>#ideas</span>
+        <span>#coding</span>
+        <span>#planning</span>
+      </div>
+    </div>
+    <div class="folder-title">🕒 Recent Notes</div>
+    <div class="notes-list" id="notesList"></div>
+  </div>
+
+  <!-- GRAPH VIEW -->
+  <div class="graph-panel">
+    <div class="graph-header">Connected Notes Graph</div>
+    <div class="graph-container">
+      <div class="graph-node center-node">Main Note</div>
+      <div class="graph-node node-1">Tasks</div>
+      <div class="graph-node node-2">Ideas</div>
+      <div class="graph-node node-3">Goals</div>
+      <div class="graph-node node-4">Projects</div>
+      <svg class="graph-lines">
+        <line x1="50%" y1="50%" x2="20%" y2="20%" />
+        <line x1="50%" y1="50%" x2="80%" y2="20%" />
+        <line x1="50%" y1="50%" x2="20%" y2="80%" />
+        <line x1="50%" y1="50%" x2="80%" y2="80%" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- WORKSPACES -->
+  <section class="workspace-panel">
+    <div class="workspace-header">
+      <h2>Workspaces</h2>
+      <button class="btn" onclick="createWorkspace()">+ New</button>
+    </div>
+    <div class="workspace-list" id="workspaceList"></div>
+    <div class="project-section">
+      <h3>Projects</h3>
+      <div id="projectList"></div>
+    </div>
+  </section>
+</section>
+
+<!-- TASKS -->
+<section class="task-manager" id="tasks">
+  <div class="task-header">
+    <div>
+      <h2>Task Management</h2>
+      <p>Organize your workflow efficiently</p>
+    </div>
+    <button class="btn" onclick="createTask()">+ New Task</button>
+  </div>
+  <div class="task-controls">
+    <input type="text" id="taskSearch" placeholder="Search tasks..." oninput="filterTasks()" />
+    <select id="priorityFilter" onchange="filterTasks()">
+      <option value="">All Priorities</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+    <select id="statusFilter" onchange="filterTasks()">
+      <option value="">All Status</option>
+      <option value="todo">Todo</option>
+      <option value="progress">In Progress</option>
+      <option value="done">Done</option>
+    </select>
+    <button class="extract-btn" onclick="extractTasksFromNotes()">Extract Tasks From Notes</button>
+  </div>
+  <div class="progress-wrapper">
+    <div class="progress-info">
+      <span>Overall Progress</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+  <div class="kanban-board">
+    <div class="kanban-column">
+      <div class="kanban-title">📝 Todo</div>
+      <div class="task-column" id="todoColumn"></div>
+    </div>
+    <div class="kanban-column">
+      <div class="kanban-title">🚀 In Progress</div>
+      <div class="task-column" id="progressColumn"></div>
+    </div>
+    <div class="kanban-column">
+      <div class="kanban-title">✅ Done</div>
+      <div class="task-column" id="doneColumn"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CALENDAR -->
+<section class="calendar-planner" id="calendar">
+  <div class="calendar-header">
+    <div>
+      <h2>Calendar &amp; Planner</h2>
+      <p>Plan your schedule and manage events</p>
+    </div>
+    <button class="btn" onclick="createEvent()">+ Add Event</button>
+  </div>
+  <div class="calendar-tabs">
+    <button onclick="switchCalendarView('daily')">Daily</button>
+    <button onclick="switchCalendarView('weekly')">Weekly</button>
+    <button onclick="switchCalendarView('monthly')">Monthly</button>
+    <button onclick="switchCalendarView('timeline')">Timeline</button>
+    <button onclick="switchCalendarView('agenda')">Agenda</button>
+  </div>
+
+  <!-- DAILY -->
+  <div class="calendar-view active-view" id="dailyView">
+    <div class="planner-grid">
+      <div class="time-block"><span>08:00</span><div class="event-block">Morning Planning</div></div>
+      <div class="time-block"><span>10:00</span></div>
+      <div class="time-block"><span>12:00</span><div class="event-block">Team Meeting</div></div>
+      <div class="time-block"><span>15:00</span></div>
+      <div class="time-block"><span>18:00</span><div class="event-block">Writing Session</div></div>
+    </div>
+  </div>
+
+  <!-- WEEKLY -->
+  <div class="calendar-view" id="weeklyView">
+    <div class="weekly-grid">
+      <div class="week-day"><h4>Mon</h4><div class="week-event">Planning</div></div>
+      <div class="week-day"><h4>Tue</h4><div class="week-event">Coding</div></div>
+      <div class="week-day"><h4>Wed</h4><div class="week-event">Research</div></div>
+      <div class="week-day"><h4>Thu</h4><div class="week-event">Meetings</div></div>
+      <div class="week-day"><h4>Fri</h4><div class="week-event">Review</div></div>
+      <div class="week-day"><h4>Sat</h4></div>
+      <div class="week-day"><h4>Sun</h4></div>
+    </div>
+  </div>
+
+  <!-- MONTHLY -->
+  <div class="calendar-view" id="monthlyView">
+    <div class="month-grid" id="monthGrid"></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="calendar-view" id="timelineView">
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content"><h4>Project Kickoff</h4><p>May 10 - 09:00 AM</p></div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content"><h4>Design Review</h4><p>May 12 - 03:00 PM</p></div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content"><h4>Launch</h4><p>May 20 - 10:00 AM</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENDA -->
+  <div class="calendar-view" id="agendaView">
+    <div class="agenda-list" id="agendaList"></div>
+  </div>
+</section>
+
+<!-- AI HUB -->
+<section class="ai-features" id="ai">
+  <h2>AI Assistant</h2>
+  <textarea id="aiPrompt" placeholder="Ask AI: summarize notes, create tasks, plan my day..."></textarea>
+  <button class="btn" onclick="runAI()">Run AI</button>
+  <div class="ai-actions">
+    <button onclick="aiSummarize()">Summarize Notes</button>
+    <button onclick="aiGenerateTasks()">Generate Tasks</button>
+    <button onclick="aiPlanDay()">Plan My Day</button>
+    <button onclick="aiInsights()">Productivity Insights</button>
+  </div>
+  <div class="ai-output" id="aiOutput"></div>
+</section>
+
+<!-- COLLABORATION -->
+<section class="collaboration" id="collaboration">
+  <div class="collab-header">
+    <h2>Collaboration</h2>
+    <button class="btn" onclick="inviteUser()">+ Invite</button>
+  </div>
+  <div class="team-box">
+    <h3>Team Members</h3>
+    <div id="teamList"></div>
+  </div>
+  <div class="comment-box">
+    <h3>Comments</h3>
+    <div id="commentList"></div>
+    <div class="comment-input">
+      <input id="commentInput" placeholder="Write a comment..." />
+      <button onclick="addComment()">Send</button>
+    </div>
+  </div>
+  <div class="activity-log">
+    <h3>Activity Log</h3>
+    <div id="activityList"></div>
+  </div>
+</section>
+
+<!-- FILE MANAGER -->
+<section class="file-manager" id="files">
+  <div class="file-header">
+    <div>
+      <h2>File Management</h2>
+      <p>Upload, preview, export and backup your data</p>
+    </div>
+    <div class="file-buttons">
+      <input type="file" id="fileInput" multiple onchange="uploadFiles(event)" />
+      <button class="btn" onclick="exportMarkdown()">MD</button>
+      <button class="btn" onclick="exportHTML()">HTML</button>
+      <button class="btn" onclick="exportPDF()">PDF</button>
+      <button class="btn" onclick="backupAll()">Backup</button>
+      <button class="btn" onclick="restoreAll()">Restore</button>
+    </div>
+  </div>
+  <div class="sync-bar">
+    <div id="syncStatus">🟢 Offline Mode (Local Storage Active)</div>
+    <button class="btn" onclick="forceSync()">Sync Now</button>
+  </div>
+  <div class="file-grid" id="fileGrid"></div>
+</section>
+
+<!-- AUTH SCREEN -->
+<section class="auth" id="authScreen">
+  <div class="auth-box">
+    <h2>Secure Login</h2>
+    <input id="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <button class="btn" onclick="loginUser()">Login</button>
+    <button class="btn" onclick="registerUser()">Register</button>
+    <p id="authMsg"></p>
+  </div>
+</section>
+
+<!-- FLOATING ACTION BUTTON -->
+<button class="fab" onclick="quickAdd()">+</button>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <button onclick="switchTab('dashboard')">🏠</button>
+  <button onclick="switchTab('notes')">📝</button>
+  <button onclick="switchTab('tasks')">✅</button>
+  <button onclick="switchTab('calendar')">📅</button>
+  <button onclick="switchTab('ai')">🤖</button>
+</nav>
+
+<script src="script.js"></script>
+</body>
+</html>
